@@ -1,0 +1,43 @@
+# CI deploy maven package
+#
+# version 1.0.0
+
+name: CI deploy maven package
+
+on:
+  push:
+    branches:
+      - branch-deploy
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@main
+      - name: Set up JDK 17
+        uses: actions/setup-java@main
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+          cache: maven
+          server-id: central
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+      - name: Import gpg
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+      - name: Configure GPG
+        run: |
+          echo "use-agent" >> ~/.gnupg/gpg.conf
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          gpg-connect-agent reloadagent /bye
+      - name: Build package
+        run: mvn clean install -P test,full -Dgpg.passphrase="${{ secrets.PASSPHRASE }}" -Dgpg.pinentry-mode=loopback
+      - name: Publish package
+        run: mvn --batch-mode deploy -P doRelease -Dgpg.passphrase="${{ secrets.PASSPHRASE }}" -Dgpg.pinentry-mode=loopback
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSS_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSS_PASSWORD }}

@@ -1,0 +1,500 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>io.github.caffetteria</groupId>
+	<artifactId>data-service-s3-ecs</artifactId>
+
+	<name>Data Servcice S3 ECS</name>
+	<description>Simple Data Service Implementation based on ECS Object Client S3</description>
+	<version>${revision}</version>
+
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<properties>
+		<revision>1.0.0</revision>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	    <java-version-compliance>8</java-version-compliance>
+		<maven.compiler.source>${java-version-compliance}</maven.compiler.source>
+		<maven.compiler.target>${java-version-compliance}</maven.compiler.target>
+		<fj-bom-version>2.0.5</fj-bom-version>
+		<fj-version>8.7.1</fj-version>
+		<fj-service-helper-version>1.5.3</fj-service-helper-version>
+		<opencmis-version>1.1.0</opencmis-version>
+		<!-- test dependencies -->
+		<mvn-surefire-version>3.5.4</mvn-surefire-version>
+		<jacoco-maven-plugin-version>0.8.14</jacoco-maven-plugin-version>
+		<!-- release dependancies -->
+		<central-version>0.9.0</central-version>
+		<mvn-gpg-version>3.1.0</mvn-gpg-version>
+		<!-- maven plugin versions -->
+		<mvn-compiler-version>3.14.1</mvn-compiler-version>
+		<mvn-source-version>3.3.1</mvn-source-version>
+		<mvn-javadoc-version>3.12.0</mvn-javadoc-version>
+		<mvn-flatten-version>1.7.3</mvn-flatten-version>
+		<!-- lombok maven -->
+		<lombok-version>1.18.42</lombok-version>
+		<lombok-maven-plugin-version>1.18.20.0</lombok-maven-plugin-version>
+		<delombok-output-dir>${project.build.directory}/generated-sources/delombok</delombok-output-dir>
+	</properties>	
+
+	<organization>
+		<url>https://github.com/caffetteria</url>
+		<name>Caffetteria</name>
+	</organization>
+	
+	<url>https://github.com/caffetteria</url>
+	
+	<scm>
+		<connection>scm:git:git://github.com/caffetteria/data-service-s3-ecs.git</connection>
+		<developerConnection>scm:git:ssh://github.com/caffetteria/data-service-s3-ecs.git</developerConnection>
+		<url>https://github.com/caffetteria/data-service-s3-ecs.git</url>
+		<tag>HEAD</tag>
+	</scm>
+
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/caffetteria/data-service-s3-ecs/issues</url>
+	</issueManagement>
+
+	<!--
+		https://central.sonatype.org/publish/publish-maven/#distribution-management-and-authentication
+		https://central.sonatype.org/publish/publish-portal-maven/#credentials
+	-->
+	<distributionManagement>
+		<snapshotRepository>
+			<id>central</id>
+			<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>central</id>
+			<url>https://s01.oss.sonatype.org//service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.fugerit.java</groupId>
+				<artifactId>fj-bom</artifactId>
+				<version>${fj-bom-version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.fugerit.java</groupId>
+				<artifactId>fj-service-helper-bom</artifactId>
+				<version>${fj-service-helper-version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.fugerit.java</groupId>
+			<artifactId>fj-core</artifactId>
+			<version>${fj-version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.fugerit.java</groupId>
+			<artifactId>simple-config</artifactId>
+			<version>${fj-service-helper-version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.fugerit.java</groupId>
+			<artifactId>data-service-base</artifactId>
+			<version>${fj-service-helper-version}</version>
+		</dependency>
+
+		<!-- s3 ecs start -->
+		<dependency>
+			<groupId>com.emc.ecs</groupId>
+			<artifactId>object-client</artifactId>
+			<version>3.4.11</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.20.0</version>
+		</dependency>
+		<!-- s3 ecs end -->
+
+		<!-- dev dependencies -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- test dependencies -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+
+		<plugins>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+				<version>${mvn-flatten-version}</version>
+				<configuration>
+					<updatePomFile>true</updatePomFile>
+					<flattenMode>resolveCiFriendliesOnly</flattenMode>
+				</configuration>
+				<executions>
+					<execution>
+						<id>flatten</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>flatten</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>flatten.clean</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${mvn-surefire-version}</version>
+				<configuration>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>
+
+		</plugins>
+
+	</build>
+
+	<developers>
+		<developer>
+			<name>Matteo Franci</name>
+			<email>mttfranci@gmail.com</email>
+			<url>https://github.com/mttfranci/</url>
+			<timezone>+1</timezone>
+			<organization>Caffetteria</organization>
+			<organizationUrl>https://github.com/caffetteria/</organizationUrl>
+			<roles>
+				<role>IT Senior Consultant</role>
+				<role>Senior Software Architect</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<profiles>
+
+		<profile>
+			<id>test</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>${mvn-surefire-version}</version>
+						<configuration>
+							<skipTests>false</skipTests>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>${jacoco-maven-plugin-version}</version>
+						<executions>
+							<execution>
+								<id>prepare-agent</id>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>report</id>
+								<goals>
+									<goal>report</goal>
+								</goals>
+								<configuration>
+									<formats>
+										<format>XML</format>
+									</formats>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>full</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.projectlombok</groupId>
+						<artifactId>lombok-maven-plugin</artifactId>
+						<version>${lombok-maven-plugin-version}</version>
+						<executions>
+							<execution>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>delombok</goal>
+								</goals>
+								<configuration>
+									<sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+									<addOutputDirectory>false</addOutputDirectory>
+									<outputDirectory>${delombok-output-dir}</outputDirectory>
+								</configuration>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>org.projectlombok</groupId>
+								<artifactId>lombok</artifactId>
+								<version>${lombok-version}</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+								<configuration>
+									<sourcepath>${javadoc-javasource-path}</sourcepath>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+		<profile>
+			<id>metadata</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>buildnumber-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>validate</phase>
+								<goals>
+									<goal>create</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<doCheck>true</doCheck>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<configuration>
+							<archive>
+								<manifest>
+									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+								</manifest>
+								<manifestEntries>
+									<Implementation-Build>${buildNumber}</Implementation-Build>
+									<!-- osgi bundle properties https://docs.osgi.org/download/r8/osgi.core-8.0.0.pdf -->
+									<Bundle-License>${licenseURL}</Bundle-License>
+									<Bundle-Description>${project.description}</Bundle-Description>
+									<Bundle-Name>${project.name}</Bundle-Name>
+									<Bundle-ManifestVersion>4</Bundle-ManifestVersion>
+								</manifestEntries>
+							</archive>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+
+		<profile>
+			<id>doRelease</id>
+			<build>
+
+				<plugins>
+
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>buildnumber-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>validate</phase>
+								<goals>
+									<goal>create</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<doCheck>true</doCheck>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<configuration>
+							<archive>
+								<manifest>
+									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+								</manifest>
+								<manifestEntries>
+									<Implementation-Build>${buildNumber}</Implementation-Build>
+									<!-- osgi bundle properties https://docs.osgi.org/download/r8/osgi.core-8.0.0.pdf -->
+									<Bundle-License>${licenseURL}</Bundle-License>
+									<Bundle-Description>${project.description}</Bundle-Description>
+									<Bundle-Name>${project.name}</Bundle-Name>
+									<Bundle-ManifestVersion>4</Bundle-ManifestVersion>
+								</manifestEntries>
+							</archive>
+						</configuration>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>org.projectlombok</groupId>
+						<artifactId>lombok-maven-plugin</artifactId>
+						<version>${lombok-maven-plugin-version}</version>
+						<executions>
+							<execution>
+								<phase>generate-sources</phase>
+								<goals>
+									<goal>delombok</goal>
+								</goals>
+								<configuration>
+									<sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+									<addOutputDirectory>false</addOutputDirectory>
+									<outputDirectory>${delombok-output-dir}</outputDirectory>
+								</configuration>
+							</execution>
+						</executions>
+						<dependencies>
+							<dependency>
+								<groupId>org.projectlombok</groupId>
+								<artifactId>lombok</artifactId>
+								<version>${lombok-version}</version>
+							</dependency>
+						</dependencies>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+								<configuration>
+									<sourcepath>${javadoc-javasource-path}</sourcepath>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>org.sonatype.central</groupId>
+						<artifactId>central-publishing-maven-plugin</artifactId>
+						<version>${central-version}</version>
+						<extensions>true</extensions>
+						<configuration>
+							<publishingServerId>central</publishingServerId>
+							<tokenAuth>true</tokenAuth>
+							<autoPublish>true</autoPublish>
+							<waitUntil>published</waitUntil>
+						</configuration>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>${mvn-gpg-version}</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+				</plugins>
+
+			</build>
+		</profile>
+
+
+	</profiles>
+
+
+</project>
