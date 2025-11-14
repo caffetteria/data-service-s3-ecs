@@ -15,6 +15,7 @@ import org.fugerit.java.simple.config.ConfigParams;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.sql.Date;
 import java.util.UUID;
 
 @Slf4j
@@ -55,23 +56,11 @@ public class S3EcsDataService implements DataService {
      */
     @Override
     public String save(InputStream data) throws IOException {
-        return this.save( data, UUID.randomUUID().toString() );
-    }
-
-    /**
-     * Save a data stream in the S3, with the given resource name.
-     *
-     * @param data          the data stream to be saved
-     * @param resourceName  the name of the resource to be saved
-     * @return              the id of the saved resource
-     * @throws IOException if Input/Output issues arise
-     */
-    @Override
-    public String save(InputStream data, String resourceName) throws IOException {
-        PutObjectRequest request = new PutObjectRequest(this.bucketName, resourceName, data);
+        String id = String.format( "%s_%s", new Date( System.currentTimeMillis() ), UUID.randomUUID() );
+        PutObjectRequest request = new PutObjectRequest(this.bucketName, id, data);
         PutObjectResult result = this.s3Client.putObject(request);
-        log.info( "save result, resourceName {}, result {}", resourceName, result.getETag() );
-        return result.getETag();
+        log.info( "save result {}", id );
+        return id;
     }
 
     /**

@@ -2,6 +2,7 @@ package io.github.caffetteria.data.service.s3.ecs;
 
 import lombok.extern.slf4j.Slf4j;
 import org.fugerit.java.core.cfg.ConfigException;
+import org.fugerit.java.core.io.StreamIO;
 import org.fugerit.java.simple.config.ConfigParams;
 import org.fugerit.java.simple.config.ConfigParamsDefault;
 import org.junit.jupiter.api.*;
@@ -53,9 +54,15 @@ class S3EcsDataServiceTest {
 
     @Test
     @Order(1)
-    @DisplayName("Test setup del DataService")
-    void testSetup() {
-        assertNotNull(dataService, "DataService should be initialized");
+    @DisplayName("Test save and load")
+    void testSaveLoadBasic() throws IOException {
+        // Given
+        String content = "Test basic write / load";
+        InputStream inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+        // When
+        String id = dataService.save(inputStream);
+        String load = StreamIO.readString( dataService.load( id ) );
+        Assertions.assertEquals(content, load);
     }
 
     @Test
