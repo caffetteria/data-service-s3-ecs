@@ -35,7 +35,6 @@ class S3EcsDataServiceTest {
             .withServices(S3);
 
     private S3EcsDataService dataService;
-    private String savedETag;
 
     @BeforeEach
     void setUp() throws ConfigException {
@@ -72,11 +71,6 @@ class S3EcsDataServiceTest {
         // Then
         assertNotNull(etag, "ETag should not be null");
         assertFalse(etag.isEmpty(), "ETag should not be empty");
-
-        // Salva l'ETag per i test successivi
-        savedETag = etag;
-
-        log.info("Saved with ETag: {}", etag);
     }
 
     @Test
