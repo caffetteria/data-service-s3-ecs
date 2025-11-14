@@ -2,7 +2,6 @@ package io.github.caffetteria.data.service.s3.ecs;
 
 import com.emc.object.s3.S3Client;
 import com.emc.object.s3.S3Config;
-import com.emc.object.s3.bean.PutObjectResult;
 import com.emc.object.s3.jersey.S3JerseyClient;
 import com.emc.object.s3.request.PutObjectRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +57,7 @@ public class S3EcsDataService implements DataService {
     public String save(InputStream data) throws IOException {
         String id = String.format( "%s_%s", new Date( System.currentTimeMillis() ), UUID.randomUUID() );
         PutObjectRequest request = new PutObjectRequest(this.bucketName, id, data);
-        PutObjectResult result = this.s3Client.putObject(request);
+        this.s3Client.putObject(request);
         log.info( "save result {}", id );
         return id;
     }
