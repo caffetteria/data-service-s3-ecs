@@ -32,6 +32,22 @@ public class S3EcsDataService implements DataService {
 
     private S3Client s3Client;
 
+    /**
+     * Save a data stream in the S3, a UUID is generated as resource name.
+     *
+     * @param data          the data stream to be saved
+     * @param resourceName  the resource name to save
+     * @return              the id of the saved resources
+     * @throws IOException if Input/Output issues arise
+     */
+    @Override
+    public String save(InputStream data, String resourceName) throws IOException {
+        PutObjectRequest request = new PutObjectRequest(this.bucketName, resourceName, data);
+        this.s3Client.putObject(request);
+        log.info( "save resource name {}", resourceName );
+        return resourceName;
+    }
+
     private String bucketName;
 
     /**
@@ -55,11 +71,7 @@ public class S3EcsDataService implements DataService {
      */
     @Override
     public String save(InputStream data) throws IOException {
-        String id = String.format( "%s_%s", new Date( System.currentTimeMillis() ), UUID.randomUUID() );
-        PutObjectRequest request = new PutObjectRequest(this.bucketName, id, data);
-        this.s3Client.putObject(request);
-        log.info( "save result {}", id );
-        return id;
+        return this.save( data,  String.format( "%s_%s", new Date( System.currentTimeMillis() ), UUID.randomUUID() ) );
     }
 
     /**

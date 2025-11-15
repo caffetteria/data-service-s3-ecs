@@ -63,6 +63,20 @@ class S3EcsDataServiceTest {
         Assertions.assertEquals(content, load);
     }
 
+    @Test
+    @Order(2)
+    @DisplayName("Test save and load with resource name")
+    void testSaveLoadBasicWithResourceName() throws IOException {
+        // Given
+        String content = "Test basic write / load with resource name";
+        String resourceName = "test-resource-name";
+        InputStream inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+        // When
+        String id = dataService.save(inputStream, resourceName);
+        String load = StreamIO.readString( dataService.load( id ) );
+        Assertions.assertEquals(content, load);
+    }
+
     @AfterEach
     void tearDown() {
         // Cleanup se necessario
