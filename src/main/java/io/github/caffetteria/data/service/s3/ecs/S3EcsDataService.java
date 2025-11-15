@@ -15,7 +15,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 @Slf4j
 public class S3EcsDataService implements DataService {
@@ -31,6 +33,33 @@ public class S3EcsDataService implements DataService {
     public static final String CREATE_IF_NOT_EXISTS = "createIfNotExists";
 
     private S3Client s3Client;
+
+    private Supplier<String> resourceIdProvider;
+
+    /**
+     * Crea un nuovo id di risorsa semplicemente con un UUID.randomUUID()
+     */
+    public static final Supplier<String> DEFAULT_RESOURCE_ID_PROVIDER = () -> UUID.randomUUID().toString();
+
+    /**
+     * Crea un nuovo id di risorsa con un UUID.randomUUID() e un timestamp
+     */
+    public static final Supplier<String> ALTERNATIVE_RESOURCE_ID_PROVIDER = () -> {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
+        String timestamp = sdf.format(new Date(System.currentTimeMillis()));
+        return String.format("%s_%s", timestamp, UUID.randomUUID());
+    };
+
+
+    /**
+     * Assegna un nuovo resource id provider
+     * @param resourceIdProvider        il nuovo resource id provider
+     * @return                          il data service
+     */
+    public S3EcsDataService withResourceIdProvider( Supplier<String> resourceIdProvider ) {
+        this.resourceIdProvider = resourceIdProvider;
+        return this;
+    }
 
     /**
      * Save a data stream in the S3, a UUID is generated as resource name.
@@ -102,6 +131,8 @@ public class S3EcsDataService implements DataService {
                 log.info("creating bucket {}", this.bucketName);
                 this.s3Client.createBucket( this.bucketName );
             }
+            // resource id
+            this.resourceIdProvider = DEFAULT_RESOURCE_ID_PROVIDER;
         } else {
             throw new ConfigException( "S3EcsDataService already configured!" );
         }

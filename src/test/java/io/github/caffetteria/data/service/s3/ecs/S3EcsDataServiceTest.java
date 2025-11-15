@@ -12,13 +12,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.S3;
 
 @Slf4j
@@ -50,21 +48,33 @@ class S3EcsDataServiceTest {
         dataService = S3EcsDataService.newDataService(configParams);
     }
 
+    private String loadSaveWorker( String content ) throws IOException {
+        try (InputStream inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
+            String id = dataService.save(inputStream);
+            log.info( "save rusult, id : {}", id );
+            return StreamIO.readString( dataService.load( id ) );
+        }
+    }
+
     @Test
     @Order(1)
     @DisplayName("Test save and load")
     void testSaveLoadBasic() throws IOException {
-        // Given
         String content = "Test basic write / load";
-        InputStream inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
-        // When
-        String id = dataService.save(inputStream);
-        String load = StreamIO.readString( dataService.load( id ) );
-        Assertions.assertEquals(content, load);
+        Assertions.assertEquals(content, this.loadSaveWorker(content));
     }
 
     @Test
     @Order(2)
+    @DisplayName("Test save and load, alternative id provider")
+    void testSaveLoadAlternativeIdProvider() throws IOException {
+        this.dataService.withResourceIdProvider( S3EcsDataService.ALTERNATIVE_RESOURCE_ID_PROVIDER );
+        String content = "Test basic write / load, alternative id provider";
+        Assertions.assertEquals(content, this.loadSaveWorker(content));
+    }
+
+    @Test
+    @Order(3)
     @DisplayName("Test save and load with resource name")
     void testSaveLoadBasicWithResourceName() throws IOException {
         // Given
