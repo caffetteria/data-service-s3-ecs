@@ -15,6 +15,8 @@ Semplice implementazione di un
 [Data Service Client](https://github.com/fugerit-org/fj-service-helper-bom/tree/main/data-service-base)
 che si interfaccia con un server S3.
 
+La configurazione avviene attraverso il modulo [Simple Config](https://github.com/fugerit-org/fj-service-helper-bom/blob/main/simple-config/README.md).
+
 ![Data Service S3 ECS](src/main/docs/dsecs_logo.png "Data Service S3 ECS")
 
 ## Quickstart
